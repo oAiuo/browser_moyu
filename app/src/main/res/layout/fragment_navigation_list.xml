@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".navigationlist.activity.NavigationListFragment">
+
+    <!-- 底部导航栏 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+        <!-- 后退按钮 -->
+        <RelativeLayout style="@style/NavItem">
+
+            <ImageView
+                android:id="@+id/goBack"
+                style="@style/NavIcon"
+                android:contentDescription="@string/nav_left"
+                android:src="@drawable/nav_left" />
+
+        </RelativeLayout>
+
+        <!-- 前进按钮 -->
+        <RelativeLayout style="@style/NavItem">
+
+            <ImageView
+                android:id="@+id/goForward"
+                style="@style/NavIcon"
+                android:contentDescription="@string/nav_right"
+                android:src="@drawable/nav_right" />
+
+        </RelativeLayout>
+
+        <!-- 菜单 -->
+        <RelativeLayout style="@style/NavItem">
+
+            <ImageView
+                android:id="@+id/navSet"
+                style="@style/NavIcon"
+                android:contentDescription="@string/nav_set"
+                android:src="@drawable/nav_set" />
+
+        </RelativeLayout>
+
+        <!-- 窗口按钮 -->
+        <RelativeLayout style="@style/NavItem">
+
+            <ImageView
+                style="@style/NavIcon"
+                android:contentDescription="@string/nav_page"
+                android:src="@drawable/nav_page" />
+
+            <TextView
+                style="@style/NavIcon"
+                android:gravity="center"
+                android:text="1"
+                android:textAlignment="center"
+                android:textColor="#555"
+                android:textSize="12sp" />
+
+        </RelativeLayout>
+
+        <!-- 主页按钮 -->
+        <RelativeLayout style="@style/NavItem">
+
+            <ImageView
+                android:id="@+id/goHome"
+                style="@style/NavIcon"
+                android:contentDescription="@string/nav_home"
+                android:src="@drawable/nav_home" />
+
+        </RelativeLayout>
+
+
+    </LinearLayout>
+
+</FrameLayout>
