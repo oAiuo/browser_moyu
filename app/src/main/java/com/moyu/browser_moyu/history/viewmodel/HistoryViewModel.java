@@ -6,22 +6,25 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.moyu.browser_moyu.db.MyDataBase;
-import com.moyu.browser_moyu.db.entity.HistoryRecord;
+
 
 import java.util.List;
 
 public class HistoryViewModel extends ViewModel {
-    private final MyDataBase myDataBase;
+
+    private final MyDataBase myDatabase;
     private LiveData<List<HistoryRecord>> liveDataHistoryRecord;
 
-    public HistoryViewModel(@NonNull Application application){
+    public HistoryViewModel(@NonNull Application application)
+    {
         super();
-        myDataBase = MyDataBase.getInstance(application);
-        liveDataHistoryRecord = myDataBase.historyRecordDao().getHistoryRecord();
+        myDatabase = MyDataBase.getInstance(application);
+        liveDataHistoryRecord = myDatabase.historyRecordDao().getHistoryRecord();
     }
 
-    public LiveData<List<HistoryRecord>> getLiveDataHistoryRecord(){
+    public LiveData<List<HistoryRecord>> getLiveDataHistoryRecord()
+    {
+
         return liveDataHistoryRecord;
     }
 }
