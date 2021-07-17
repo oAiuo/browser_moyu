@@ -7,12 +7,15 @@ import androidx.room.PrimaryKey;
 @Entity
 public class BookmarkRecord {
 
+    //自增uid，用于标识增加顺序
     @PrimaryKey(autoGenerate = true)
     public int uid;
 
+    //标题
     @ColumnInfo
     public String title;
 
+    //网址
     @ColumnInfo
     public String url;
 
