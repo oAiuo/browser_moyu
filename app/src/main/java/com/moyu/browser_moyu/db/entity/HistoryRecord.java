@@ -4,12 +4,14 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import java.sql.Date;
+import java.util.Date;
 
-@Entity
+@Entity(tableName = "HistoryRecords")
 public class HistoryRecord  {
+    //自增uid，用于记录访问顺序
     @PrimaryKey(autoGenerate = true)
     public int uid;
+
 
     @ColumnInfo
     public String title;
@@ -17,8 +19,9 @@ public class HistoryRecord  {
     @ColumnInfo
     public String url;
 
+    //访问时间，后期可实现按时间划分
     @ColumnInfo
-    public Date date = null;
+    public Date date ;
 
     public HistoryRecord(String title, String url, Date date) {
         this.title = title;
@@ -26,10 +29,10 @@ public class HistoryRecord  {
         this.date = date;
     }
 
+
     public int getUid() {
         return uid;
     }
-
 
     public String getTitle() {
         return title;
