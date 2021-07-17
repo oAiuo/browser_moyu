@@ -1,9 +1,5 @@
 package com.moyu.browser_moyu.history.bean;
 
-
-import android.view.View;
-import android.widget.Toast;
-
 import androidx.databinding.BaseObservable;
 import androidx.databinding.Bindable;
 
@@ -16,25 +12,21 @@ public class HistoryBean extends BaseObservable {
         this.title = title;
         this.url = url;
     }
-    @Bindable
-    public String getUrl(){
-        return url;
-    }
-    public void setUrl(String url){
-        this.url = url;
-        notifyPropertyChanged(BR.url);
-    }
 
     @Bindable
     public String getTitle(){
         return title;
     }
-    public void setTitle(String title){
+    public void setTitle(){
         this.title = title;
         notifyPropertyChanged(BR.title);
     }
 
-    public void click(View v){
-        Toast.makeText(v.getContext(),getTitle(),Toast.LENGTH_SHORT).show();
+    @Bindable
+    public String getUrl(){
+        return url;
+    }
+    public void setUrl(){
+        this.url = url;
     }
 }

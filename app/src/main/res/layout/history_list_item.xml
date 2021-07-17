@@ -2,24 +2,27 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
+<!--        <variable-->
+<!--            name="historyRecord"-->
+<!--            type="com.moyu.browser_moyu.db.entity.HistoryRecord" />-->
         <variable
-            name="history"
+            name="historyBean"
             type="com.moyu.browser_moyu.history.bean.HistoryBean" />
     </data>
 
 
 <LinearLayout
-        android:onClick="@{history::click}"
+
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:orientation="horizontal"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp">
+        android:gravity="center_vertical">
         
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{history.title}"/>
+            android:text="name"
+            android:textSize="30dp"/>
 
     </LinearLayout>
 </layout>
