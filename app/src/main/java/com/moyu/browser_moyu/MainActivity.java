@@ -2,8 +2,12 @@ package com.moyu.browser_moyu;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
+import com.moyu.browser_moyu.history.activity.HistoryRecordActivity;
 import com.moyu.browser_moyu.searchpage.activity.SearchPageFragment;
 
 public class MainActivity extends AppCompatActivity {
