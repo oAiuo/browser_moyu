@@ -7,21 +7,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.moyu.browser_moyu.BR;
-import com.moyu.browser_moyu.MainActivity;
 import com.moyu.browser_moyu.R;
 import com.moyu.browser_moyu.db.MyDataBase;
 import com.moyu.browser_moyu.db.entity.HistoryRecord;
 import com.moyu.browser_moyu.db.viewmodel.HistoryViewModel;
 import com.moyu.browser_moyu.history.adapter.ListViewAdapter;
-import com.moyu.browser_moyu.history.bean.HistoryBean;
+
 
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.schedulers.Schedulers;
+
 
 
 public class HistoryRecordActivity extends AppCompatActivity {

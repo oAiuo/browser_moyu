@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <data>
-<!--        <variable-->
-<!--            name="historyRecord"-->
-<!--            type="com.moyu.browser_moyu.db.entity.HistoryRecord" />-->
-        <variable
-            name="historyBean"
-            type="com.moyu.browser_moyu.history.bean.HistoryBean" />
-    </data>
 
 
 <LinearLayout
