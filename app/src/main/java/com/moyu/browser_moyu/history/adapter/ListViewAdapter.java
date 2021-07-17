@@ -6,38 +6,38 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.TextView;
 
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
+import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.moyu.browser_moyu.R;
+import com.moyu.browser_moyu.db.entity.HistoryRecord;
 
 import java.util.List;
 
 
 public class ListViewAdapter<T> extends BaseAdapter {
     Context context;
-    LayoutInflater inflater;
-    int layoutId;
-    int variableId;
-    List<T> list;
+    private LayoutInflater inflater;
+    private List<HistoryRecord> historyRecordList;
 
-    public ListViewAdapter(Context context,LayoutInflater inflater,int layoutId,int variableId,List<T> list){
+    public ListViewAdapter(Context context,List<HistoryRecord> list){
         this.context = context;
-        this.inflater = inflater;
-        this.layoutId = layoutId;
-        this.variableId = variableId;
-        this.list = list;
+        this.historyRecordList = list;
+        inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
     public int getCount(){
-        return list.size();
+        return historyRecordList.size();
     }
 
     @Override
     public Object getItem(int position){
-        return list.get(position);
+        return historyRecordList.get(position);
     }
 
     @Override
@@ -45,16 +45,29 @@ public class ListViewAdapter<T> extends BaseAdapter {
         return position;
     }
 
+    class ViewHolder{
+        TextView title;
+        TextView url;
+    }
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewDataBinding viewDataBinding;
-        if(context == null){
-            viewDataBinding = DataBindingUtil.inflate(inflater,layoutId,null,false);
-        }else{
-            viewDataBinding = DataBindingUtil.getBinding(convertView);
+        ViewHolder viewHolder;
+        if (convertView == null)
+        {
+            convertView = inflater.inflate(R.layout.history_list_item
+                    , null);
+            viewHolder = new ViewHolder();
+            viewHolder.title = convertView.findViewById(R.id.title);
+            viewHolder.url = convertView.findViewById(R.id.url);
+            convertView.setTag(viewHolder);
+        } else
+        {
+            viewHolder = (ViewHolder) convertView.getTag();
         }
-        viewDataBinding.setVariable(variableId,list.get(position));
-        return viewDataBinding.getRoot().getRootView();
-
+        viewHolder.title.setText(historyRecordList.get(position).getTitle());
+        viewHolder.url.setText(historyRecordList.get(position).getUrl());
+        return convertView;
     }
+
+
 }
