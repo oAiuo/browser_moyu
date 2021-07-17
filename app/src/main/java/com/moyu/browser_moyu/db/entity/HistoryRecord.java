@@ -26,6 +26,8 @@ public class HistoryRecord  {
         this.date = date;
     }
 
+
+
     public int getUid() {
         return uid;
     }
