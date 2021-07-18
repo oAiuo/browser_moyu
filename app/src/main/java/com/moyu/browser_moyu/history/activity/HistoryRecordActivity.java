@@ -16,7 +16,7 @@ import com.moyu.browser_moyu.db.MyDataBase;
 import com.moyu.browser_moyu.db.entity.HistoryRecord;
 import com.moyu.browser_moyu.history.adapter.ListViewAdapter;
 import com.moyu.browser_moyu.history.bean.HistoryBean;
-import com.moyu.browser_moyu.history.viewmodel.HistoryViewModel;
+import com.moyu.browser_moyu.db.viewmodel.HistoryViewModel;
 
 import java.util.ArrayList;
 import java.sql.Date;

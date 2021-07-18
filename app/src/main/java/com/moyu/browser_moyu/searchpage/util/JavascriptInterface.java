@@ -3,6 +3,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import com.moyu.browser_moyu.searchpage.activity.PhotoBrowserActivity;
+import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
+
+/**
+ * Created by Administrator on 2017/2/10.
+ */
 public class JavascriptInterface {
     private Context context;
     private String [] imageUrls;

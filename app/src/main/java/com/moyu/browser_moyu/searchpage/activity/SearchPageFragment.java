@@ -30,6 +30,8 @@ import android.widget.Toast;
 
 import com.moyu.browser_moyu.R;
 import com.moyu.browser_moyu.databinding.FragmentSearchPageBinding;
+import com.moyu.browser_moyu.searchpage.util.JavascriptInterface;
+import com.moyu.browser_moyu.searchpage.util.StringUtils;
 import com.moyu.browser_moyu.searchpage.viewmodel.SearchPageViewModel;
 
 import java.io.UnsupportedEncodingException;
@@ -55,6 +57,9 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
     private static final String HTTP = "http://";
     private static final String HTTPS = "https://";
     private static final int PRESS_BACK_EXIT_GAP = 2000;
+
+    private String[] imageUrls = StringUtils.returnImageUrlsFromHtml();
+
 
     public SearchPageFragment() {
         super(R.layout.fragment_search_page);
@@ -156,14 +161,15 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
      */
     @SuppressLint("SetJavaScriptEnabled")
     private void initWeb() {
-        // 重写 WebViewClient
-        webView.setWebViewClient(new MkWebViewClient());
-        // 重写 WebChromeClient
-        webView.setWebChromeClient(new MkWebChromeClient());
 
         WebSettings settings = webView.getSettings();
         // 启用 js 功能
         settings.setJavaScriptEnabled(true);
+        settings.setAppCacheEnabled(true);
+        settings.setDatabaseEnabled(true);
+        settings.setDomStorageEnabled(true);
+
+
         // 设置浏览器 UserAgent
         settings.setUserAgentString(settings.getUserAgentString() + " mkBrowser/" + getVerName(mContext));
 
@@ -199,7 +205,13 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         }
 
         // 加载首页
-        webView.loadUrl(getResources().getString(R.string.home_url));
+        //webView.loadUrl(getResources().getString(R.string.home_url));
+        webView.loadUrl("https://blog.csdn.net/qq_36617521/article/details/56272165");
+        webView.addJavascriptInterface(new JavascriptInterface(getContext(),imageUrls), "imagelistener");
+        // 重写 WebViewClient
+        webView.setWebViewClient(new MkWebViewClient());
+        // 重写 WebChromeClient
+        webView.setWebChromeClient(new MkWebChromeClient());
     }
 
 
@@ -235,6 +247,7 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
 
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            view.getSettings().setJavaScriptEnabled(true);
             super.onPageStarted(view, url, favicon);
             // 网页开始加载，显示进度条
             progressBar.setProgress(0);
@@ -249,6 +262,7 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
 
         @Override
         public void onPageFinished(WebView view, String url) {
+            view.getSettings().setJavaScriptEnabled(true);
             super.onPageFinished(view, url);
             // 网页加载完毕，隐藏进度条
             progressBar.setVisibility(View.INVISIBLE);
@@ -257,6 +271,20 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
             //mView_.setTitle(webView.getTitle());
             // 显示页面标题
             textUrl.setText(webView.getTitle());
+            addImageClickListener(view);//待网页加载完全后设置图片点击的监听方法
+        }
+
+        private void addImageClickListener(WebView webView) {
+            webView.loadUrl("javascript:(function(){" +
+                    "var objs = document.getElementsByTagName(\"img\"); " +
+                    "for(var i=0;i<objs.length;i++)  " +
+                    "{"
+                    + "    objs[i].onclick=function()  " +
+                    "    {  "
+                    + "        window.imagelistener.openImage(this.src);  " +//通过js代码找到标签为img的代码块，设置点击的监听方法与本地的openImage方法进行连接
+                    "    }  " +
+                    "}" +
+                    "})()");
         }
     }
 
