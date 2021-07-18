@@ -25,7 +25,7 @@ public class BookmarkRecordViewModel extends AndroidViewModel {
 
     private LiveData<List<BookmarkRecord>> bookmarkRecordLiveData;
 
-    public BookmarkRecordViewModel(@NonNull @NotNull Application application) {
+    public BookmarkRecordViewModel(@NonNull Application application) {
         super(application);
         myDatabase = MyDataBase.getInstance(application);
         bookmarkRecordLiveData = myDatabase.bookmarkRecordDao().getBookmarkRecords();
