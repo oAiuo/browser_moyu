@@ -1,6 +1,7 @@
 package com.moyu.browser_moyu.history.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -26,22 +27,24 @@ import java.util.List;
 public class HistoryRecordActivity extends AppCompatActivity {
 
     HistoryViewModel mViewModel;
+//    ActivityHistoryRecordBinding binding;
     ListView listView;
     List<HistoryBean> historyList= new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        mViewModel = new ViewModelProvider(this).get(HistoryViewModel.class);
         setContentView(R.layout.activity_history_record);
-        listView = findViewById(R.id.historyListView);
+//        binding = DataBindingUtil.setContentView(this,R.layout.activity_history_record);
+//        mViewModel = new ViewModelProvider(this).get(HistoryViewModel.class);
+//        listView = findViewById(R.id.historyListView);
 
-        initData();
-        ListViewAdapter<HistoryBean> HistoryListViewAdapter = new ListViewAdapter<>(this,
-                getLayoutInflater(),
-                R.layout.history_list_item,
-                BR.historyBean,
-                historyList);
+//        initData();
+//        ListViewAdapter<HistoryBean> HistoryListViewAdapter = new ListViewAdapter<>(this,
+//                getLayoutInflater(),
+//                R.layout.history_list_item,
+//                BR.historyBean,
+//                historyList);
 //        listView.setAdapter(HistoryListViewAdapter);
 
 

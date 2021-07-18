@@ -6,38 +6,43 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.TextView;
 
-import androidx.databinding.DataBindingUtil;
-import androidx.databinding.ViewDataBinding;
+import com.moyu.browser_moyu.R;
+import com.moyu.browser_moyu.db.entity.HistoryRecord;
 
 
 
 import java.util.List;
 
 
-public class ListViewAdapter<T> extends BaseAdapter {
-    Context context;
-    LayoutInflater inflater;
-    int layoutId;
-    int variableId;
-    List<T> list;
+public class ListViewAdapter extends BaseAdapter {
 
-    public ListViewAdapter(Context context,LayoutInflater inflater,int layoutId,int variableId,List<T> list){
-        this.context = context;
-        this.inflater = inflater;
-        this.layoutId = layoutId;
-        this.variableId = variableId;
-        this.list = list;
+    private LayoutInflater layoutInflater;
+    private List<HistoryRecord> historyRecordList;
+
+
+    public ListViewAdapter(Context context,List<HistoryRecord> historyRecordList){
+        this.historyRecordList = historyRecordList;
+        layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    }
+
+    class ViewHolder{
+        TextView tvtitle;
+        TextView tvurl;
     }
 
     @Override
     public int getCount(){
-        return list.size();
+        if(historyRecordList == null){
+            return 0;
+        }
+        return historyRecordList.size();
     }
 
     @Override
     public Object getItem(int position){
-        return list.get(position);
+        return historyRecordList.get(position);
     }
 
     @Override
@@ -47,14 +52,18 @@ public class ListViewAdapter<T> extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewDataBinding viewDataBinding;
-        if(context == null){
-            viewDataBinding = DataBindingUtil.inflate(inflater,layoutId,null,false);
+        ViewHolder viewHolder;
+        if(convertView == null){
+            convertView =layoutInflater.inflate(R.layout.history_list_item,null);
+            viewHolder = new ViewHolder();
+            viewHolder.tvtitle =convertView.findViewById(R.id.tvtitle);
+            viewHolder.tvurl =convertView.findViewById(R.id.tvurl);
+            convertView.setTag(viewHolder);
         }else{
-            viewDataBinding = DataBindingUtil.getBinding(convertView);
+            viewHolder = (ViewHolder) convertView.getTag();
         }
-        viewDataBinding.setVariable(variableId,list.get(position));
-        return viewDataBinding.getRoot().getRootView();
-
+        viewHolder.tvtitle.setText(String.valueOf(historyRecordList.get(position).title));
+        viewHolder.tvurl.setText(String.valueOf(historyRecordList.get(position).url));
+        return convertView;
     }
 }
