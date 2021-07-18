@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import com.moyu.browser_moyu.R;
 
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class WebViewUtil {
 
@@ -64,6 +66,24 @@ public class WebViewUtil {
 
     public static void setLocalDestPage(String destPage) {
         WebViewUtil.localDestPage = destPage;
+    }
+
+    /**
+     * 判断字符串是否为URL（https://blog.csdn.net/bronna/article/details/77529145）
+     *
+     * @param urls 要勘定的字符串
+     * @return true:是URL、false:不是URL
+     */
+    public static boolean isHttpUrl(String urls) {
+        boolean isUrl;
+        // 判断是否是网址的正则表达式
+        String regex = "(((https|http)?://)?([a-z0-9]+[.])|(www.))"
+                + "\\w+[.|\\/]([a-z0-9]{0,})?[[.]([a-z0-9]{0,})]+((/[\\S&&[^,;\u4E00-\u9FA5]]+)+)?([.][a-z0-9]{0,}+|/?)";
+
+        Pattern pat = Pattern.compile(regex.trim());
+        Matcher mat = pat.matcher(urls.trim());
+        isUrl = mat.matches();
+        return isUrl;
     }
 
 }
