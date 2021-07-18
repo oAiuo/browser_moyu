@@ -58,7 +58,7 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
     private static final String HTTPS = "https://";
     private static final int PRESS_BACK_EXIT_GAP = 2000;
 
-    private String[] imageUrls = StringUtils.returnImageUrlsFromHtml();
+    private String[] imageUrls;
 
 
     public SearchPageFragment() {
