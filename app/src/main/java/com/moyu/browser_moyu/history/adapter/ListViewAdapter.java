@@ -8,35 +8,29 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+
+
+
 import com.moyu.browser_moyu.R;
 import com.moyu.browser_moyu.db.entity.HistoryRecord;
-
-
 
 import java.util.List;
 
 
-public class ListViewAdapter extends BaseAdapter {
 
-    private LayoutInflater layoutInflater;
+public class ListViewAdapter<T> extends BaseAdapter {
+    Context context;
+    private LayoutInflater inflater;
     private List<HistoryRecord> historyRecordList;
 
-
-    public ListViewAdapter(Context context,List<HistoryRecord> historyRecordList){
-        this.historyRecordList = historyRecordList;
-        layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    }
-
-    class ViewHolder{
-        TextView tvtitle;
-        TextView tvurl;
+    public ListViewAdapter(Context context,List<HistoryRecord> list){
+        this.context = context;
+        this.historyRecordList = list;
+        inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
     public int getCount(){
-        if(historyRecordList == null){
-            return 0;
-        }
         return historyRecordList.size();
     }
 
@@ -50,20 +44,29 @@ public class ListViewAdapter extends BaseAdapter {
         return position;
     }
 
+    class ViewHolder{
+        TextView title;
+        TextView url;
+    }
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
-        if(convertView == null){
-            convertView =layoutInflater.inflate(R.layout.history_list_item,null);
+        if (convertView == null)
+        {
+            convertView = inflater.inflate(R.layout.history_list_item
+                    , null);
             viewHolder = new ViewHolder();
-            viewHolder.tvtitle =convertView.findViewById(R.id.tvtitle);
-            viewHolder.tvurl =convertView.findViewById(R.id.tvurl);
+            viewHolder.title = convertView.findViewById(R.id.title);
+            viewHolder.url = convertView.findViewById(R.id.url);
             convertView.setTag(viewHolder);
-        }else{
+        } else
+        {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        viewHolder.tvtitle.setText(String.valueOf(historyRecordList.get(position).title));
-        viewHolder.tvurl.setText(String.valueOf(historyRecordList.get(position).url));
+        viewHolder.title.setText(historyRecordList.get(position).getTitle());
+        viewHolder.url.setText(historyRecordList.get(position).getUrl());
         return convertView;
     }
+
+
 }
