@@ -29,6 +29,8 @@ import com.bumptech.glide.request.target.Target;
 import com.moyu.browser_moyu.searchpage.util.FileUtils;
 import android.app.Activity;
 
+import java.util.ArrayList;
+
 public class PhotoBrowserActivity extends Activity implements View.OnClickListener {
     private ImageView crossIv;
     private ViewPager mPager;
@@ -36,7 +38,7 @@ public class PhotoBrowserActivity extends Activity implements View.OnClickListen
     private TextView photoOrderTv;
     private TextView saveTv;
     private String curImageUrl = "";
-    private String[] imageUrls = new String[]{};
+    private ArrayList<String> imageUrls = new ArrayList(){};
 
     private int curPosition = -1;
     private int[] initialedPositions = null;
@@ -48,9 +50,9 @@ public class PhotoBrowserActivity extends Activity implements View.OnClickListen
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_photo_browser);
-        imageUrls = getIntent().getStringArrayExtra("imageUrls");
+        imageUrls = getIntent().getStringArrayListExtra("imageUrls");
         curImageUrl = getIntent().getStringExtra("curImageUrl");
-        initialedPositions = new int[imageUrls.length];
+        initialedPositions = new int[imageUrls.size()];
         initInitialedPositions();
 
         photoOrderTv = (TextView) findViewById(R.id.photoOrderTv);
@@ -65,7 +67,7 @@ public class PhotoBrowserActivity extends Activity implements View.OnClickListen
         mPager.setAdapter(new PagerAdapter() {
             @Override
             public int getCount() {
-                return imageUrls.length;
+                return imageUrls.size();
             }
 
 
@@ -76,11 +78,11 @@ public class PhotoBrowserActivity extends Activity implements View.OnClickListen
 
             @Override
             public Object instantiateItem(ViewGroup container, final int position) {
-                if (imageUrls[position] != null && !"".equals(imageUrls[position])) {
+                if (imageUrls.get(position) != null && !"".equals(imageUrls.get(position))) {
                     final PhotoView view = new PhotoView(PhotoBrowserActivity.this);
                     view.enable();
                     view.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                    Glide.with(PhotoBrowserActivity.this).load(imageUrls[position]).override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL).fitCenter().crossFade().listener(new RequestListener<String, GlideDrawable>() {
+                    Glide.with(PhotoBrowserActivity.this).load(imageUrls.get(position)).override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL).fitCenter().crossFade().listener(new RequestListener<String, GlideDrawable>() {
                         @Override
                         public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
                             if (position == curPosition) {
@@ -125,7 +127,7 @@ public class PhotoBrowserActivity extends Activity implements View.OnClickListen
         if (initialedPositions[curPosition] != curPosition) {//如果当前页面未加载完毕，则显示加载动画，反之相反；
             showLoadingAnimation();
         }
-        photoOrderTv.setText((curPosition + 1) + "/" + imageUrls.length);//设置页面的编号
+        photoOrderTv.setText((curPosition + 1) + "/" + imageUrls.size());//设置页面的编号
 
         mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -141,7 +143,7 @@ public class PhotoBrowserActivity extends Activity implements View.OnClickListen
                     hideLoadingAnimation();
                 }
                 curPosition = position;
-                photoOrderTv.setText((position + 1) + "/" + imageUrls.length);//设置页面的编号
+                photoOrderTv.setText((position + 1) + "/" + imageUrls.size());//设置页面的编号
                 mPager.setTag(position);//为当前view设置tag
             }
 
@@ -156,8 +158,8 @@ public class PhotoBrowserActivity extends Activity implements View.OnClickListen
         if (imageUrls == null || curImageUrl == null) {
             return -1;
         }
-        for (int i = 0; i < imageUrls.length; i++) {
-            if (curImageUrl.equals(imageUrls[i])) {
+        for (int i = 0; i < imageUrls.size(); i++) {
+            if (curImageUrl.equals(imageUrls.get(i))) {
                 return i;
             }
         }

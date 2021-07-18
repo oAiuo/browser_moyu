@@ -60,7 +60,7 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
     private static final String HTTPS = "https://";
     private static final int PRESS_BACK_EXIT_GAP = 2000;
 
-    private String[] imageUrls;
+    private String[] imageUrls = StringUtils.returnImageUrlsFromHtml();
 
 
     public SearchPageFragment() {
@@ -167,11 +167,6 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         WebSettings settings = webView.getSettings();
         // 启用 js 功能
         settings.setJavaScriptEnabled(true);
-        settings.setAppCacheEnabled(true);
-        settings.setDatabaseEnabled(true);
-        settings.setDomStorageEnabled(true);
-
-
         // 设置浏览器 UserAgent
         settings.setUserAgentString(settings.getUserAgentString() + " mkBrowser/" + getVerName(mContext));
 
@@ -209,7 +204,7 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         // 加载首页
         //webView.loadUrl(getResources().getString(R.string.home_url));
         webView.loadUrl("https://blog.csdn.net/qq_36617521/article/details/56272165");
-        webView.addJavascriptInterface(new JavascriptInterface(getContext(),imageUrls), "imagelistener");
+        webView.addJavascriptInterface(new JavascriptInterface(getContext()), "imagelistener");
         // 重写 WebViewClient
         webView.setWebViewClient(new MkWebViewClient());
         // 重写 WebChromeClient
@@ -272,6 +267,7 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             view.getSettings().setJavaScriptEnabled(true);
             super.onPageStarted(view, url, favicon);
+            /*
             // 网页开始加载，显示进度条
             progressBar.setProgress(0);
             progressBar.setVisibility(View.VISIBLE);
@@ -280,7 +276,7 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
             textUrl.setText("加载中...");
 
             // 切换默认网页图标
-            webIcon.setImageResource(R.drawable.internet);
+            webIcon.setImageResource(R.drawable.internet);*/
         }
 
         @Override
@@ -288,18 +284,26 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
             view.getSettings().setJavaScriptEnabled(true);
             super.onPageFinished(view, url);
             // 网页加载完毕，隐藏进度条
-            progressBar.setVisibility(View.INVISIBLE);
+            //progressBar.setVisibility(View.INVISIBLE);
 
             // 改变标题
             //mView_.setTitle(webView.getTitle());
             // 显示页面标题
-            textUrl.setText(webView.getTitle());
+            //textUrl.setText(webView.getTitle());
+            //getSource(view);
             addImageClickListener(view);//待网页加载完全后设置图片点击的监听方法
+
         }
 
-        private void addImageClickListener(WebView webView) {
-            webView.loadUrl("javascript:(function(){" +
+        private void addImageClickListener(WebView view) {
+            view.loadUrl("javascript:(function(){" +
                     "var objs = document.getElementsByTagName(\"img\"); " +
+                    "for(var i=0;i<objs.length;i++)" +
+                    "{"
+                    + "   window.imagelistener.showSource(objs[i].src);  "
+                    +"}"+
+                  //  "window.imagelistener.showSource(document.getElementsByTagName('html')[0].innerHTML);"
+                 //   +
                     "for(var i=0;i<objs.length;i++)  " +
                     "{"
                     + "    objs[i].onclick=function()  " +
@@ -309,6 +313,16 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
                     "}" +
                     "})()");
         }
+
+        /**
+         * 得到网页的源码
+         */
+        public void getSource(WebView view){
+            view.loadUrl("javascript:(function(){"
+                    + "window.imagelistener.showSource(document.getElementsByTagName('html')[0].innerHTML);  " +//通过js代码找到标签为img的代码块，设置点击的监听方法与本地的openImage方法进行连接
+                    "})()");
+        }
+
     }
 
 
@@ -321,7 +335,7 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         @Override
         public void onProgressChanged(WebView view, int newProgress) {
             super.onProgressChanged(view, newProgress);
-
+        /*
             // 加载进度变动，刷新进度条
             progressBar.setProgress(newProgress);
             if (newProgress > 0) {
@@ -330,7 +344,7 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
                 } else {
                     progressBar.setVisibility(View.VISIBLE);
                 }
-            }
+            }*/
         }
 
         @Override
@@ -338,7 +352,7 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
             super.onReceivedIcon(view, icon);
 
             // 改变图标
-            webIcon.setImageBitmap(icon);
+            //webIcon.setImageBitmap(icon);
         }
 
         @Override
@@ -348,7 +362,7 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
             // 改变标题
             //setTitle(title);
             // 显示页面标题
-            textUrl.setText(title);
+            //textUrl.setText(title);
         }
     }
 
