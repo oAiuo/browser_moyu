@@ -31,7 +31,7 @@ public interface HistoryRecordDao {
     Completable  deleteAllHistoryRecords();
 
 
-    @Query("SELECT * FROM HistoryRecords ORDER BY Uid  ")
+    @Query("SELECT * FROM HistoryRecords ORDER BY Uid desc  ")
     LiveData<List<HistoryRecord>> getHistoryRecords();//希望监听历史记录的变化，为其加上LiveData
 
 
