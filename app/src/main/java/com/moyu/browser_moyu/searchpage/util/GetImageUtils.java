@@ -69,4 +69,23 @@ public class GetImageUtils {
         return listImgSrc;
     }
 
+    public static ArrayList<String> returnImageUrlsFromHtml(String htmlCode) {
+        ArrayList<String> imageSrcList = new ArrayList<String>();
+        Pattern p = Pattern.compile("<img\\b[^>]*\\bsrc\\b\\s*=\\s*('|\")?([^'\"\n\r\f>]+(\\.jpg|\\.bmp|\\.eps|\\.gif|\\.mif|\\.miff|\\.png|\\.tif|\\.tiff|\\.svg|\\.wmf|\\.jpe|\\.jpeg|\\.dib|\\.ico|\\.tga|\\.cut|\\.pic|\\b)\\b)[^>]*>", Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(htmlCode);
+        String quote = null;
+        String src = null;
+        while (m.find()) {
+            quote = m.group(1);
+            src = (quote == null || quote.trim().length() == 0) ? m.group(2).split("//s+")[0] : m.group(2);
+            imageSrcList.add(src);
+        }
+        if (imageSrcList == null || imageSrcList.size() == 0) {
+            Log.e("imageSrcList","资讯中未匹配到图片链接");
+            return null;
+        }
+        return imageSrcList;
+    }
+
+
 }

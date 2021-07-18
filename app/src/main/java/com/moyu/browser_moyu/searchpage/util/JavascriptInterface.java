@@ -45,7 +45,8 @@ public class JavascriptInterface {
     public void showSource(String html){
         Log.i(TAG,"html---"+html);
         //imageSrc = GetImageUtils.getImageSrc(GetImageUtils.getImageUrl(html));
-        imageSrc.add(html);
+        //imageSrc.add(html);
+        imageSrc = GetImageUtils.returnImageUrlsFromHtml(html);
         /*
         if(null!=listner){
             listner.getImageList(imageSrc);
