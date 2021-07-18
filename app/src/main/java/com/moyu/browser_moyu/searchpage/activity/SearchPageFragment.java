@@ -28,10 +28,12 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.moyu.browser_moyu.R;
 import com.moyu.browser_moyu.databinding.FragmentSearchPageBinding;
 import com.moyu.browser_moyu.searchpage.util.JavascriptInterface;
 import com.moyu.browser_moyu.searchpage.util.StringUtils;
+import com.moyu.browser_moyu.searchpage.util.WebViewUtil;
 import com.moyu.browser_moyu.searchpage.viewmodel.SearchPageViewModel;
 
 import java.io.UnsupportedEncodingException;
@@ -214,6 +216,19 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         webView.setWebChromeClient(new MkWebChromeClient());
     }
 
+    /**
+     * 拦截器初始化
+     *
+     * @param context
+     */
+    private void initWebViewUtil(Context context) {
+        WebViewUtil.getInstance(context);
+        WebViewUtil.addUrl("sohu", ".sohu.com");
+        WebViewUtil.addUrl("163", ".163.com");
+        WebViewUtil.setLocalDestPage("file:///android_asset/destpage.html");
+    }
+
+    private static final String TAG = "SearchPageFragment";
 
     /**
      * 重写 WebViewClient
@@ -230,6 +245,14 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
 
             // 正常的内容，打开
             if (url.startsWith(HTTP) || url.startsWith(HTTPS)) {
+                // 初始化拦截器
+                initWebViewUtil(view.getContext());
+
+                // 当前URL在拦截列表内
+                if (WebViewUtil.isNeedIntercept(url.toString())) {
+                    // 更改为本地html文件资源
+                    url = WebViewUtil.getLocalDestPage();
+                }
                 view.loadUrl(url);
                 return true;
             }
@@ -462,6 +485,18 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
             e.printStackTrace();
         }
         return verName;
+    }
+
+    @Override
+    public void onDestroy() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Glide.get(getActivity()).clearDiskCache();//清理磁盘缓存需要在子线程中执行
+            }
+        }).start();
+        Glide.get(getActivity()).clearMemory();//清理内存缓存可以在UI主线程中进行
+        super.onDestroy();
     }
 
 }
