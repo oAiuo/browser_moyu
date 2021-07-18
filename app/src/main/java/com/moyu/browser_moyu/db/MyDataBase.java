@@ -13,12 +13,13 @@ import com.moyu.browser_moyu.db.dao.HistoryRecordDao;
 import com.moyu.browser_moyu.db.entity.BookmarkRecord;
 import com.moyu.browser_moyu.db.entity.HistoryRecord;
 
-@Database(entities = {HistoryRecord.class, BookmarkRecord.class}, version = 1)
+@Database(entities = {HistoryRecord.class, BookmarkRecord.class}, version = 1,exportSchema = false)
+
 @TypeConverters({Converters.class})
 public abstract class MyDataBase extends RoomDatabase {
-    private static final String DATABASE_NAME = "my_db";
+    private static final String DATABASE_NAME = "myDataBase";
 
-    private static MyDataBase databaseInstance =  null;
+    private static volatile MyDataBase databaseInstance =  null;
 
     public static  MyDataBase getInstance(Context context)
     {
