@@ -11,6 +11,7 @@ import android.os.Bundle;
 
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 //import android.app.Fragment;
 
 
@@ -31,6 +32,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.moyu.browser_moyu.R;
 import com.moyu.browser_moyu.databinding.FragmentSearchPageBinding;
+import com.moyu.browser_moyu.db.viewmodel.HistoryViewModel;
 import com.moyu.browser_moyu.searchpage.util.JavascriptInterface;
 import com.moyu.browser_moyu.searchpage.util.StringUtils;
 import com.moyu.browser_moyu.searchpage.util.WebViewUtil;
@@ -40,6 +42,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 
 
 public class SearchPageFragment extends Fragment implements View.OnClickListener{
@@ -60,7 +66,9 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
     private static final String HTTPS = "https://";
     private static final int PRESS_BACK_EXIT_GAP = 2000;
 
-    private String[] imageUrls = StringUtils.returnImageUrlsFromHtml();
+    private CompositeDisposable mDisposable ;
+    private HistoryViewModel historyViewModel;
+
 
 
     public SearchPageFragment() {
@@ -74,6 +82,10 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         mContext = this.getContext();
 
         manager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        //历史记录数据库
+        historyViewModel = new ViewModelProvider(this).get(HistoryViewModel.class);
+        mDisposable = new CompositeDisposable();
 
 
     }
@@ -283,6 +295,14 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         public void onPageFinished(WebView view, String url) {
             view.getSettings().setJavaScriptEnabled(true);
             super.onPageFinished(view, url);
+
+            //插入数据
+            mDisposable.add(historyViewModel.insertHistoryRecord(view.getTitle(), view.getUrl())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe()
+            );
+
             // 网页加载完毕，隐藏进度条
             progressBar.setVisibility(View.INVISIBLE);
 
