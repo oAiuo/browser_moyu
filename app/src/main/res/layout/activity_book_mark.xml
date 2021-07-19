@@ -3,11 +3,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:context=".bookmark.activity.BookMarkActivity"
     android:orientation="vertical"
-    tools:context=".history.activity.HistoryRecordActivity">
+    >
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/bookmark_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?android:actionBarSize" />
+
+
 
     <ListView
         android:id="@+id/bookmarkListView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
 </LinearLayout>
