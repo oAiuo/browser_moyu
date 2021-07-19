@@ -61,6 +61,9 @@ public class HistoryRecordActivity extends AppCompatActivity {
 
         listView = findViewById(R.id.historyListView);
 
+        listViewAdapter = new ListViewAdapter(HistoryRecordActivity.this,historyList);
+        listView.setAdapter(listViewAdapter);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("历史记录");
         setSupportActionBar(toolbar);
