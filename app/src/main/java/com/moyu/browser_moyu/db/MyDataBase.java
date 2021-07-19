@@ -13,21 +13,21 @@ import com.moyu.browser_moyu.db.dao.HistoryRecordDao;
 import com.moyu.browser_moyu.db.entity.BookmarkRecord;
 import com.moyu.browser_moyu.db.entity.HistoryRecord;
 
-@Database(entities = {HistoryRecord.class, BookmarkRecord.class}, version = 1,exportSchema = false)
 
+@Database(entities = {HistoryRecord.class, BookmarkRecord.class}, version = 1,exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class MyDataBase extends RoomDatabase {
     private static final String DATABASE_NAME = "myDataBase";
 
+
     private static volatile MyDataBase databaseInstance =  null;
 
-    public static  MyDataBase getInstance(Context context)
-    {
 
-        if(databaseInstance == null)
-        {
+    public static MyDataBase getInstance(Context context) {
+
+        if (databaseInstance == null) {
             synchronized (MyDataBase.class) {
-                if(databaseInstance == null) {
+                if (databaseInstance == null) {
                     databaseInstance = Room
                             .databaseBuilder(context.getApplicationContext(), MyDataBase.class, DATABASE_NAME)
                             .build();
@@ -37,6 +37,7 @@ public abstract class MyDataBase extends RoomDatabase {
         return databaseInstance;
     }
 
-    public abstract HistoryRecordDao historyRecordDao() ;
+    public abstract HistoryRecordDao historyRecordDao();
+
     public abstract BookmarkRecordDao bookmarkRecordDao();
 }

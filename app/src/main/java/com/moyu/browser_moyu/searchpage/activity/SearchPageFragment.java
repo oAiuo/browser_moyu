@@ -9,12 +9,18 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 //import android.app.Fragment;
 
 
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +38,9 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.moyu.browser_moyu.R;
 import com.moyu.browser_moyu.databinding.FragmentSearchPageBinding;
+import com.moyu.browser_moyu.navigationlist.activity.Data;
+import com.moyu.browser_moyu.navigationlist.activity.NavigationListFragment;
+import com.moyu.browser_moyu.navigationlist.viewmodel.NavSearViewModel;
 import com.moyu.browser_moyu.db.viewmodel.HistoryViewModel;
 import com.moyu.browser_moyu.searchpage.util.JavascriptInterface;
 import com.moyu.browser_moyu.searchpage.util.StringUtils;
@@ -48,11 +57,16 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 
 
-public class SearchPageFragment extends Fragment implements View.OnClickListener{
+public class SearchPageFragment extends Fragment implements View.OnClickListener {
 
+    private boolean goBackNum = true, goForwardNum = true, goHomeNum = true;
     private FragmentSearchPageBinding mBinding_;
+    //NavFragment与SearFragment通信ViewModel
+    private NavSearViewModel viewModel;
+
     private SearchPageViewModel m_search_view_model_;
-    private WebView webView;
+    //将private改成public
+    public WebView webView;
     private ProgressBar progressBar;
     private EditText textUrl;
     private ImageView webIcon, goBack, goForward, navSet, goHome, btnStart;
@@ -77,10 +91,8 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         mContext = this.getContext();
-
         manager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 
         //历史记录数据库
@@ -94,7 +106,38 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        mView_ = inflater.inflate(R.layout.fragment_search_page, container, false);
+        mBinding_ = DataBindingUtil.inflate(inflater, R.layout.fragment_search_page, container, false);
+        viewModel = ViewModelProviders.of(getActivity()).get(NavSearViewModel.class);
+        mBinding_.setViewModel(viewModel);
+        mBinding_.setLifecycleOwner(getActivity());
+
+        viewModel.getData().observe(getActivity(), new Observer<Data>() {
+            @Override
+            public void onChanged(Data data) {
+                if (data.getGoBack() == 1) {
+//                    Toast.makeText(getActivity(), "goback", Toast.LENGTH_SHORT).show();
+                    if (webView.canGoBack()) {
+                        webView.goBack();
+                    }
+                    data.setGoBack(0);
+                }
+                if (data.getGoForward() == 2) {
+//                    Toast.makeText(getActivity(), "goforward", Toast.LENGTH_SHORT).show();
+                    if (webView.canGoForward()) {
+                        webView.goForward();
+                    }
+                    data.setGoForward(0);
+                }
+                if (data.getGoHome() == 3) {
+//                    Toast.makeText(getActivity(), "goHome", Toast.LENGTH_SHORT).show();
+                    webView.loadUrl("https://www.baidu.com");
+                    data.setGoHome(0);
+                }
+            }
+        });
+
+        mView_ = mBinding_.getRoot();
+//        mView_ = inflater.inflate(R.layout.fragment_search_page, container, false);
 
         /*
         // 1、对布局需要绑定的内容进行加载
@@ -106,6 +149,7 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
 
         mView_ = view;
         */
+
         // 绑定控件
         initView();
 
@@ -113,6 +157,7 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         initWeb();
 
         return mView_;
+
     }
 
     /**
@@ -318,11 +363,11 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         private void addImageClickListener(WebView view) {
             view.loadUrl("javascript:(function(){" +
                     "var objs = document.getElementsByTagName(\"img\"); " +
-                  //  "for(var i=0;i<objs.length;i++)" +
-                   // "{"
-                   // + "   window.imagelistener.showSource(objs[i].src);  "
+                    //  "for(var i=0;i<objs.length;i++)" +
+                    // "{"
+                    // + "   window.imagelistener.showSource(objs[i].src);  "
                     //+"}"+
-                  "window.imagelistener.showSource(document.getElementsByTagName('html')[0].innerHTML);"
+                    "window.imagelistener.showSource(document.getElementsByTagName('html')[0].innerHTML);"
                     +
                     "for(var i=0;i<objs.length;i++)  " +
                     "{"
@@ -337,7 +382,7 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         /**
          * 得到网页的源码
          */
-        public void getSource(WebView view){
+        public void getSource(WebView view) {
             view.loadUrl("javascript:(function(){"
                     + "window.imagelistener.showSource(document.getElementsByTagName('html')[0].innerHTML);  " +//通过js代码找到标签为img的代码块，设置点击的监听方法与本地的openImage方法进行连接
                     "})()");
@@ -408,7 +453,6 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
 
         }
     }*/
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
