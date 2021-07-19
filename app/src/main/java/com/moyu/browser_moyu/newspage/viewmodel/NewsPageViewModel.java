@@ -23,12 +23,5 @@ public class NewsPageViewModel extends ViewModel {
     public NewsPageViewModel() {
 
     }
-
-
-
-
-
-
-    // TODO: Implement the ViewModel
 }
 

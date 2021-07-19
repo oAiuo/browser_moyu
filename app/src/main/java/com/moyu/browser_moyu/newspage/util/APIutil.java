@@ -54,16 +54,13 @@ public class APIutil {
     private static JSONObject getRequestFromUrl(String url) throws IOException, JSONException {
         URL realUrl = new URL(url);
         URLConnection conn = realUrl.openConnection();
-        InputStream instream = conn.getInputStream();
-        try {
+        try (InputStream instream = conn.getInputStream()) {
             BufferedReader rd = new BufferedReader(new InputStreamReader(instream, StandardCharsets.UTF_8));
 
             String jsonText = readAll(rd);
             Log.d(TAG, "getRequestFromUrl: jsonText " + jsonText);
             JSONObject json = new JSONObject(jsonText);
             return json;
-        } finally {
-            instream.close();
         }
     }
 
@@ -97,6 +94,7 @@ public class APIutil {
     public static ArrayList<Link> updateTitleUrlList(String keyWord, int pageToken) {
         try {
             String url = base_APIUrl + base_kw + URLEncoder.encode(keyWord, "UTF-8") + base_pageToken + pageToken;
+            Log.d(TAG, "updateTitleUrlList: url " + url);
             JSONObject json = getRequestFromUrl(url);
             JSONArray data = json.getJSONArray("data");
 
