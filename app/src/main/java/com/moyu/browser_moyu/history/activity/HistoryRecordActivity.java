@@ -1,6 +1,8 @@
 package com.moyu.browser_moyu.history.activity;
 
+
 import android.content.DialogInterface;
+
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.Menu;
@@ -34,12 +36,14 @@ import io.reactivex.schedulers.Schedulers;
 
 public class HistoryRecordActivity extends AppCompatActivity {
 
+
     private MyDataBase myDataBase ;
     private HistoryViewModel mViewModel;
     private BookmarkRecordViewModel bookmarkRecordViewModel;
 
     private ListView listView;
     private List<HistoryRecord> historyList= new ArrayList<>();
+
     private CompositeDisposable mDisposable ;
     private ListViewAdapter listViewAdapter;
 
@@ -47,6 +51,7 @@ public class HistoryRecordActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_history_record);
 
         myDataBase = MyDataBase.getInstance(getApplicationContext());
@@ -60,9 +65,7 @@ public class HistoryRecordActivity extends AppCompatActivity {
         toolbar.setTitle("历史记录");
         setSupportActionBar(toolbar);
 
-        listViewAdapter = new ListViewAdapter(HistoryRecordActivity.this,
-                historyList);
-        listView.setAdapter(listViewAdapter);
+
 
         //观察数据库历史记录的变化
         mViewModel.getLiveDataHistoryRecord().observe(this, new Observer<List<HistoryRecord>>() {

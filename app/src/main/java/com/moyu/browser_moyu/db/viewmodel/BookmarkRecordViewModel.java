@@ -48,7 +48,12 @@ public class BookmarkRecordViewModel extends AndroidViewModel {
         return myDatabase.bookmarkRecordDao().deleteBookMarkRecords();
     }
 
-    public LiveData<List<BookmarkRecord>> getLiveDataHistoryRecord()
+    //更新记录
+    public Completable updateBookmarkRecord(BookmarkRecord bookmarkRecord){
+        return myDatabase.bookmarkRecordDao().updateBookmarkRecord(bookmarkRecord);
+    }
+
+    public LiveData<List<BookmarkRecord>> getLiveDataBookmarkRecord()
     {
         return bookmarkRecordLiveData;
     }
