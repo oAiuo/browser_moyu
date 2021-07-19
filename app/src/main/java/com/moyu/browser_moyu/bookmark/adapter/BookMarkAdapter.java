@@ -1,5 +1,4 @@
-package com.moyu.browser_moyu.history.adapter;
-
+package com.moyu.browser_moyu.bookmark.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,35 +7,30 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-
-
-
 import com.moyu.browser_moyu.R;
-import com.moyu.browser_moyu.db.entity.HistoryRecord;
+import com.moyu.browser_moyu.db.entity.BookmarkRecord;
 
 import java.util.List;
 
-
-
-public class ListViewAdapter<T> extends BaseAdapter {
+public class BookMarkAdapter extends BaseAdapter {
     Context context;
     private LayoutInflater inflater;
-    private List<HistoryRecord> historyRecordList;
+    private List<BookmarkRecord> bookmarkRecordList;
 
-    public ListViewAdapter(Context context,List<HistoryRecord> list){
+    public BookMarkAdapter(Context context,List<BookmarkRecord> list){
         this.context = context;
-        this.historyRecordList = list;
+        this.bookmarkRecordList = list;
         inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
     public int getCount(){
-        return historyRecordList.size();
+        return bookmarkRecordList.size();
     }
 
     @Override
     public Object getItem(int position){
-        return historyRecordList.get(position);
+        return bookmarkRecordList.get(position);
     }
 
     @Override
@@ -51,9 +45,8 @@ public class ListViewAdapter<T> extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
-        if (convertView == null)
-        {
-            convertView = inflater.inflate(R.layout.history_list_item
+        if (convertView == null) {
+            convertView = inflater.inflate(R.layout.bookmark_list_item
                     , null);
             viewHolder = new ViewHolder();
             viewHolder.title = convertView.findViewById(R.id.title);
@@ -63,10 +56,8 @@ public class ListViewAdapter<T> extends BaseAdapter {
         {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        viewHolder.title.setText(historyRecordList.get(position).getTitle());
-        viewHolder.url.setText(historyRecordList.get(position).getUrl());
+        viewHolder.title.setText(bookmarkRecordList.get(position).getTitle());
+        viewHolder.url.setText(bookmarkRecordList.get(position).getUrl());
         return convertView;
     }
-
-
 }
