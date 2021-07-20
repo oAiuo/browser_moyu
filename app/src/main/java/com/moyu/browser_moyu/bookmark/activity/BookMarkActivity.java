@@ -122,7 +122,7 @@ public class BookMarkActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()){
-            case R.id.delect_all:
+            case R.id.delect_all_bookmark:
                 AlertDialog.Builder dialog = new AlertDialog.Builder(BookMarkActivity.this);
                 dialog.setMessage("是否删除所有书签");
                 dialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
