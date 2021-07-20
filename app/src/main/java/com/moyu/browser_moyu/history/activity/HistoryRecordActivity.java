@@ -105,7 +105,7 @@ public class HistoryRecordActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
-            case R.id.delete:
+            case R.id.delete_all_historyRecord:
                 AlertDialog.Builder dialog = new AlertDialog.Builder(HistoryRecordActivity.this);
                 dialog.setMessage("是否删除所有记录");
                 dialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
