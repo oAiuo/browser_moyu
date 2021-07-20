@@ -25,7 +25,7 @@ public interface BookmarkRecordDao {
     Completable deleteBookmarkRecord(BookmarkRecord bookmarkRecord);
 
     //删除所有记录
-    @Query("DELETE FROM HistoryRecords")
+    @Query("DELETE FROM BookmarkRecord")
     Completable deleteBookMarkRecords();
 
     //修改书签内容
