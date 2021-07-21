@@ -59,13 +59,11 @@ import io.reactivex.schedulers.Schedulers;
 
 public class SearchPageFragment extends Fragment implements View.OnClickListener {
 
-    private boolean goBackNum = true, goForwardNum = true, goHomeNum = true;
     private FragmentSearchPageBinding mBinding_;
     //NavFragment与SearFragment通信ViewModel
-    private NavSearViewModel viewModel;
+    private NavSearViewModel navSearViewModel;
 
     private SearchPageViewModel m_search_view_model_;
-    //将private改成public
     public WebView webView;
     private ProgressBar progressBar;
     private EditText textUrl;
@@ -80,9 +78,8 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
     private static final String HTTPS = "https://";
     private static final int PRESS_BACK_EXIT_GAP = 2000;
 
-    private CompositeDisposable mDisposable ;
+    private CompositeDisposable mDisposable;
     private HistoryViewModel historyViewModel;
-
 
 
     public SearchPageFragment() {
@@ -99,7 +96,6 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         historyViewModel = new ViewModelProvider(this).get(HistoryViewModel.class);
         mDisposable = new CompositeDisposable();
 
-
     }
 
     @Override
@@ -107,31 +103,32 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
                              Bundle savedInstanceState) {
 
         mBinding_ = DataBindingUtil.inflate(inflater, R.layout.fragment_search_page, container, false);
-        viewModel = ViewModelProviders.of(getActivity()).get(NavSearViewModel.class);
-        mBinding_.setViewModel(viewModel);
+        navSearViewModel = ViewModelProviders.of(getActivity()).get(NavSearViewModel.class);
+        mBinding_.setViewModel(navSearViewModel);
         mBinding_.setLifecycleOwner(getActivity());
 
-        viewModel.getData().observe(getActivity(), new Observer<Data>() {
+        navSearViewModel.getData().observe(getActivity(), new Observer<Data>() {
             @Override
             public void onChanged(Data data) {
-                if (data.getGoBack() == 1) {
+                if (data.getGoBack()) {
 //                    Toast.makeText(getActivity(), "goback", Toast.LENGTH_SHORT).show();
                     if (webView.canGoBack()) {
                         webView.goBack();
                     }
-                    data.setGoBack(0);
+                    //重置
+                    data.setGoBack(false);
                 }
-                if (data.getGoForward() == 2) {
+                if (data.getGoForward()) {
 //                    Toast.makeText(getActivity(), "goforward", Toast.LENGTH_SHORT).show();
                     if (webView.canGoForward()) {
                         webView.goForward();
                     }
-                    data.setGoForward(0);
+                    data.setGoForward(false);
                 }
-                if (data.getGoHome() == 3) {
+                if (data.getGoHome()) {
 //                    Toast.makeText(getActivity(), "goHome", Toast.LENGTH_SHORT).show();
                     webView.loadUrl("https://www.baidu.com");
-                    data.setGoHome(0);
+                    data.setGoHome(false);
                 }
             }
         });
@@ -157,7 +154,6 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         initWeb();
 
         return mView_;
-
     }
 
     /**

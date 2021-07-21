@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -66,10 +67,9 @@ import io.reactivex.schedulers.Schedulers;
 
 public class NavigationListFragment extends Fragment implements View.OnClickListener {
 
+    //数据库
     private BookmarkRecordViewModel bookmarkRecordViewModel;
     private CompositeDisposable mDisposable;
-    //WebView
-    private WebView webView;
     //后退，前进，菜单，窗口，主页面
     private ImageView iv_goBack, iv_goForward, iv_menu, iv_windows, iv_mainWindow;
     //menu菜单Dialog，窗口Dialog
@@ -80,31 +80,37 @@ public class NavigationListFragment extends Fragment implements View.OnClickList
     private View menuView;
     //fragment视图
     private View view;
+    //WebView
+    private WebView webView;
     //碎片管理
-    FragmentManager fragmentManager;
+    private FragmentManager fragmentManager;
     //导航栏上方碎片
-    SearchPageFragment searchPageFragment;
+    private SearchPageFragment searchPageFragment;
 
 //    //绑定
 //    private FragmentNavigationListBinding fragmentNavigationListBinding;
 //    //ViewModel
 //    private NavigationListViewModel navigationListViewModel;
 
-    //Dialog
-    private String[] menu_name_array = {"历史记录", "书签", "加入书签", "资讯"};
+    //menuDialog
+    private String[] menu_name_array = {"历史记录", "书签", "加入书签", "资讯", "无痕浏览"};
     private int[] menu_image_array = {R.drawable.history1, R.drawable.bookmark, R.drawable.add_bookmark,
-            R.drawable.news};
+            R.drawable.news, R.drawable.traceless_close};
 
     //DialogItem
     private final int ITEM_HISTORY = 0;
     private final int ITEM_BOOKMARK = 1;
     private final int ITEM_ADD_BOOKMARK = 2;
-    //    private final int ITEM_CREATE_WINDOW = 3;
     private final int ITEM_NEWS = 3;
+    private final int ITEM_TRACELESS = 4;
+    //    private final int ITEM_CREATE_WINDOW = 5;
 
     //与SearchPageFragment通信
-    private NavSearViewModel viewModel;
+    private NavSearViewModel navSearViewModel;
     private FragmentNavigationListBinding fragmentNavigationListBinding;
+
+    //是否打开无痕浏览
+    private boolean flag = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -119,8 +125,8 @@ public class NavigationListFragment extends Fragment implements View.OnClickList
         //绑定
         fragmentNavigationListBinding = DataBindingUtil.inflate
                 (inflater, R.layout.fragment_navigation_list, container, false);
-        viewModel = ViewModelProviders.of(getActivity()).get(NavSearViewModel.class);
-        fragmentNavigationListBinding.setViewModel(viewModel);
+        navSearViewModel = ViewModelProviders.of(getActivity()).get(NavSearViewModel.class);
+        fragmentNavigationListBinding.setViewModel(navSearViewModel);
         fragmentNavigationListBinding.setLifecycleOwner(getActivity());
 
         view = fragmentNavigationListBinding.getRoot();
@@ -142,15 +148,7 @@ public class NavigationListFragment extends Fragment implements View.OnClickList
         });
 
         menuGrid.setAdapter(getMenuAdapter(menu_name_array, menu_image_array));
-        menuDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
-            public boolean onKey(DialogInterface dialog, int keyCode,
-                                 KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_MENU)// 监听按键
-                    dialog.dismiss();
-                return false;
-            }
-        });
-
+        //菜单中按钮的监听
         menuGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                                     long arg3) {
@@ -193,6 +191,28 @@ public class NavigationListFragment extends Fragment implements View.OnClickList
                         menuDialog.dismiss();
                         Intent toNews = new Intent(getActivity(), NewsPageActivity.class);
                         startActivity(toNews);
+                        break;
+                    //无痕浏览
+                    case ITEM_TRACELESS:
+                        menuDialog.dismiss();
+                        View v = arg0.getChildAt(arg2);
+                        TextView tv_traceless = v.findViewById(R.id.item_text);
+                        ImageView iv_traceless = v.findViewById(R.id.item_image);
+                        if (flag) {
+                            Toast.makeText(getActivity(), "关闭了无痕浏览", Toast.LENGTH_SHORT).show();
+                            iv_traceless.setBackground(getResources().getDrawable(R.drawable.traceless_close));
+                            tv_traceless.setTextColor(Color.GRAY);
+                            flag = false;
+                            //具体逻辑
+
+                        } else {
+                            Toast.makeText(getActivity(), "打开了无痕浏览", Toast.LENGTH_SHORT).show();
+                            iv_traceless.setBackground(getResources().getDrawable(R.drawable.traceless_open));
+                            tv_traceless.setTextColor(Color.BLUE);
+                            flag = true;
+                            //具体逻辑
+
+                        }
                         break;
                 }
             }
@@ -264,7 +284,7 @@ public class NavigationListFragment extends Fragment implements View.OnClickList
         window.setAttributes(params);
     }
 
-    //点击事件
+    //导航栏点击事件
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -275,19 +295,19 @@ public class NavigationListFragment extends Fragment implements View.OnClickList
                 break;
             //多窗口
             case R.id.windows:
-
+                Toast.makeText(getActivity(), "功能开发中", Toast.LENGTH_SHORT).show();
                 break;
             //后退
             case R.id.goBack:
-                viewModel.getData().setGoBack(1);
+                navSearViewModel.getData().setGoBack(true);
                 break;
             //前进
             case R.id.goForward:
-                viewModel.getData().setGoForward(2);
+                navSearViewModel.getData().setGoForward(true);
                 break;
             //回主页
             case R.id.goHome:
-                viewModel.getData().setGoHome(3);
+                navSearViewModel.getData().setGoHome(true);
                 break;
             default:
                 Toast.makeText(getActivity(), "出错", Toast.LENGTH_SHORT).show();
