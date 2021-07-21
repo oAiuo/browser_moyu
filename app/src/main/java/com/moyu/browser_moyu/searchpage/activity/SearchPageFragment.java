@@ -8,19 +8,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.databinding.DataBindingUtil;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
-//import android.app.Fragment;
-
-
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,17 +20,20 @@ import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
+
+import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.bumptech.glide.Glide;
 import com.moyu.browser_moyu.R;
 import com.moyu.browser_moyu.databinding.FragmentSearchPageBinding;
-import com.moyu.browser_moyu.navigationlist.activity.Data;
-import com.moyu.browser_moyu.navigationlist.activity.NavigationListFragment;
-import com.moyu.browser_moyu.navigationlist.viewmodel.NavSearViewModel;
 import com.moyu.browser_moyu.db.viewmodel.HistoryViewModel;
+import com.moyu.browser_moyu.navigationlist.activity.Data;
+import com.moyu.browser_moyu.navigationlist.viewmodel.NavSearViewModel;
 import com.moyu.browser_moyu.searchpage.util.JavascriptInterface;
-import com.moyu.browser_moyu.searchpage.util.StringUtils;
 import com.moyu.browser_moyu.searchpage.util.WebViewUtil;
 import com.moyu.browser_moyu.searchpage.viewmodel.SearchPageViewModel;
 
@@ -57,15 +47,14 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 
 
+
 public class SearchPageFragment extends Fragment implements View.OnClickListener {
 
-    private boolean goBackNum = true, goForwardNum = true, goHomeNum = true;
     private FragmentSearchPageBinding mBinding_;
     //NavFragment与SearFragment通信ViewModel
-    private NavSearViewModel viewModel;
+    private NavSearViewModel navSearViewModel;
 
     private SearchPageViewModel m_search_view_model_;
-    //将private改成public
     public WebView webView;
     private ProgressBar progressBar;
     private EditText textUrl;
@@ -80,10 +69,10 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
     private static final String HTTPS = "https://";
     private static final int PRESS_BACK_EXIT_GAP = 2000;
 
-    private CompositeDisposable mDisposable ;
+    private CompositeDisposable mDisposable;
     private HistoryViewModel historyViewModel;
-
-
+    //true 开启无痕模式， false 关闭无痕模式
+    private boolean noRecord;
 
     public SearchPageFragment() {
         super(R.layout.fragment_search_page);
@@ -98,41 +87,50 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         //历史记录数据库
         historyViewModel = new ViewModelProvider(this).get(HistoryViewModel.class);
         mDisposable = new CompositeDisposable();
-
-
+        
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         mBinding_ = DataBindingUtil.inflate(inflater, R.layout.fragment_search_page, container, false);
-        viewModel = ViewModelProviders.of(getActivity()).get(NavSearViewModel.class);
-        mBinding_.setViewModel(viewModel);
+        navSearViewModel = ViewModelProviders.of(getActivity()).get(NavSearViewModel.class);
+        mBinding_.setViewModel(navSearViewModel);
         mBinding_.setLifecycleOwner(getActivity());
 
-        viewModel.getData().observe(getActivity(), new Observer<Data>() {
+        navSearViewModel.getData().observe(getActivity(), new Observer<Data>() {
             @Override
             public void onChanged(Data data) {
-                if (data.getGoBack() == 1) {
+                if (data.getGoBack()) {
 //                    Toast.makeText(getActivity(), "goback", Toast.LENGTH_SHORT).show();
                     if (webView.canGoBack()) {
                         webView.goBack();
+                    }else{
+                        getActivity().finish();
                     }
-                    data.setGoBack(0);
+                    //重置
+                    data.setGoBack(false);
                 }
-                if (data.getGoForward() == 2) {
+                if (data.getGoForward()) {
 //                    Toast.makeText(getActivity(), "goforward", Toast.LENGTH_SHORT).show();
                     if (webView.canGoForward()) {
                         webView.goForward();
                     }
-                    data.setGoForward(0);
+                    data.setGoForward(false);
                 }
-                if (data.getGoHome() == 3) {
+                if (data.getGoHome()) {
 //                    Toast.makeText(getActivity(), "goHome", Toast.LENGTH_SHORT).show();
                     webView.loadUrl("https://www.baidu.com");
-                    data.setGoHome(0);
+                    data.setGoHome(false);
                 }
+                if(data.getUseOther() == 4){
+                    String url = useOtherUrl();
+                    webView.loadUrl(url);
+                    data.setUseOther(0);
+                }
+                noRecord = data.getNoRecord();
             }
         });
 
@@ -157,7 +155,6 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         initWeb();
 
         return mView_;
-
     }
 
     /**
@@ -199,6 +196,8 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
                 }
             }
         });
+
+
 
         // 监听键盘回车搜索
         textUrl.setOnKeyListener(new View.OnKeyListener() {
@@ -259,8 +258,11 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         }
 
         // 加载首页
-        //webView.loadUrl(getResources().getString(R.string.home_url));
-        webView.loadUrl("https://zhuanlan.zhihu.com/p/191061926");
+        //webView.loadUrl(getResources().getString(
+        // R.string.home_url));
+        String url = "https://zhuanlan.zhihu.com/p/191061926";
+
+        webView.loadUrl(url);
         webView.addJavascriptInterface(new JavascriptInterface(getContext()), "imagelistener");
         // 重写 WebViewClient
         webView.setWebViewClient(new MkWebViewClient());
@@ -322,7 +324,6 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
 
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
-            view.getSettings().setJavaScriptEnabled(true);
             super.onPageStarted(view, url, favicon);
 
             // 网页开始加载，显示进度条
@@ -341,13 +342,15 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
             view.getSettings().setJavaScriptEnabled(true);
             super.onPageFinished(view, url);
 
-            //插入数据
-            mDisposable.add(historyViewModel.insertHistoryRecord(view.getTitle(), view.getUrl())
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe()
-            );
 
+            if(!noRecord) {
+                //插入数据
+                mDisposable.add(historyViewModel.insertHistoryRecord(view.getTitle(), view.getUrl())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe()
+                );
+            }
             // 网页加载完毕，隐藏进度条
             progressBar.setVisibility(View.INVISIBLE);
 
@@ -361,20 +364,33 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         }
 
         private void addImageClickListener(WebView view) {
-            view.loadUrl("javascript:(function(){" +
-                    "var objs = document.getElementsByTagName(\"img\"); " +
-                    //  "for(var i=0;i<objs.length;i++)" +
-                    // "{"
-                    // + "   window.imagelistener.showSource(objs[i].src);  "
-                    //+"}"+
-                    "window.imagelistener.showSource(document.getElementsByTagName('html')[0].innerHTML);"
-                    +
-                    "for(var i=0;i<objs.length;i++)  " +
-                    "{"
-                    + "    objs[i].onclick=function()  " +
-                    "    {  "
-                    + "        window.imagelistener.openImage(this.src);  " +//通过js代码找到标签为img的代码块，设置点击的监听方法与本地的openImage方法进行连接
-                    "    }  " +
+            view.loadUrl("javascript:(function(){"
+                    +"var objs = document.getElementsByTagName(\"img\"); "
+                    +"window.imagelistener.setNewArray();"
+                    +"var Expression=/https:\\/\\/([\\w-]+\\.)+[\\w-]+(\\/[\\w- .\\/?%&=]*)?/;"
+                    +"var objExp=new RegExp(Expression);"
+                    +"var array=new Array();"
+                    +"var j = 0;"
+                    + "for(var i=0;i<objs.length;i++)"
+                    +"{"
+                    +   "if(objExp.test(objs[i].src))"
+                    +  "{"
+                    +    "array[j++] = objs[i];"
+                    +  "   window.imagelistener.showSource(objs[i].src);  "
+                    +   "}"
+                    +"}"
+                   // "window.imagelistener.showSource(document.getElementsByTagName('html')[0].innerHTML);"
+                    +"for(var i=0;i<array.length;i++)  "
+                    +"{"
+                    + "    array[i].onclick=function()  "
+                    +"    {  "
+                  //  +       "var Expression2=/https:\\/\\/([\\w-]+\\.)+[\\w-]+(\\/[\\w- .\\/?%&=]*)?/;"
+                   // +       " var objExp2=new RegExp(Expression);"
+                    +       "if(objExp.test(this.src))"
+                    +       "{"
+                    +           "window.imagelistener.openImage(this.src);  "
+                    +       "}"
+                    +"    }  " +
                     "}" +
                     "})()");
         }
@@ -435,24 +451,23 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
     /**
      * 返回按钮处理
      */
-    /*
-    @Override
-    public void onBackPressed() {
-        // 能够返回则返回上一页
-        if (webView.canGoBack()) {
-            webView.goBack();
-        } else {
-            if ((System.currentTimeMillis() - exitTime) > PRESS_BACK_EXIT_GAP) {
-                // 连点两次退出程序
-                Toast.makeText(mContext, "再按一次退出程序",
-                        Toast.LENGTH_SHORT).show();
-                exitTime = System.currentTimeMillis();
-            } else {
-                super.onBackPressed();
-            }
-
-        }
-    }*/
+//    @Override
+//    public void onBackPressed() {
+//        // 能够返回则返回上一页
+//        if (webView.canGoBack()) {
+//            webView.goBack();
+//        } else {
+//            if ((System.currentTimeMillis() - exitTime) > PRESS_BACK_EXIT_GAP) {
+//                // 连点两次退出程序
+//                Toast.makeText(mContext, "再按一次退出程序",
+//                        Toast.LENGTH_SHORT).show();
+//                exitTime = System.currentTimeMillis();
+//            } else {
+//                super.onBackPressed();
+//            }
+//
+//        }
+//    }
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -475,6 +490,10 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
                             e.printStackTrace();
                         }
                         input = "https://www.baidu.com/s?wd=" + input + "&ie=UTF-8";
+                    }
+
+                    if(!(input.startsWith("http") || input.startsWith("https"))){
+                        input = "https://" + input;
                     }
                     webView.loadUrl(input);
 
@@ -565,6 +584,16 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         return verName;
     }
 
+    //获得历史记录，资讯或书签传递的url;
+    public String useOtherUrl(){
+        Intent intent = getActivity().getIntent();
+        String url = null;
+        if(intent != null){
+            url = intent.getStringExtra("url");
+        }
+        return url;
+    }
+
     @Override
     public void onDestroy() {
         new Thread(new Runnable() {
@@ -576,5 +605,7 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         Glide.get(getActivity()).clearMemory();//清理内存缓存可以在UI主线程中进行
         super.onDestroy();
     }
+
+
 
 }

@@ -1,73 +1,55 @@
 package com.moyu.browser_moyu.navigationlist.activity;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
+import android.graphics.Color;
 import android.os.Bundle;
-
-import androidx.appcompat.view.menu.MenuPopupHelper;
-import androidx.databinding.DataBindingUtil;
-import androidx.databinding.ObservableField;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
-
-import android.text.SpannableStringBuilder;
-import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.datepicker.CompositeDateValidator;
+import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+
 import com.moyu.browser_moyu.R;
+import com.moyu.browser_moyu.bookmark.activity.BookMarkActivity;
 import com.moyu.browser_moyu.databinding.FragmentNavigationListBinding;
 import com.moyu.browser_moyu.db.viewmodel.BookmarkRecordViewModel;
 import com.moyu.browser_moyu.history.activity.HistoryRecordActivity;
 import com.moyu.browser_moyu.navigationlist.viewmodel.NavSearViewModel;
-import com.moyu.browser_moyu.navigationlist.viewmodel.NavigationListViewModel;
+import com.moyu.browser_moyu.newspage.activity.NewsPageActivity;
 import com.moyu.browser_moyu.searchpage.activity.SearchPageFragment;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class NavigationListFragment extends Fragment implements View.OnClickListener {
 
+    //数据库
     private BookmarkRecordViewModel bookmarkRecordViewModel;
     private CompositeDisposable mDisposable;
-    //WebView
-    private WebView webView;
     //后退，前进，菜单，窗口，主页面
     private ImageView iv_goBack, iv_goForward, iv_menu, iv_windows, iv_mainWindow;
     //menu菜单Dialog，窗口Dialog
@@ -78,29 +60,37 @@ public class NavigationListFragment extends Fragment implements View.OnClickList
     private View menuView;
     //fragment视图
     private View view;
+    //WebView
+    private WebView webView;
     //碎片管理
-    FragmentManager fragmentManager;
+    private FragmentManager fragmentManager;
     //导航栏上方碎片
-    SearchPageFragment searchPageFragment;
+    private SearchPageFragment searchPageFragment;
 
 //    //绑定
 //    private FragmentNavigationListBinding fragmentNavigationListBinding;
 //    //ViewModel
 //    private NavigationListViewModel navigationListViewModel;
 
-    //Dialog
-    private String[] menu_name_array = {"历史记录", "书签", "加入书签", "新建窗口"};
-    private int[] menu_image_array = {R.drawable.history1, R.drawable.bookmark, R.drawable.add_bookmark, R.drawable.add_web};
+    //menuDialog
+    private String[] menu_name_array = {"历史记录", "书签", "加入书签", "资讯", "无痕浏览"};
+    private int[] menu_image_array = {R.drawable.history1, R.drawable.bookmark, R.drawable.add_bookmark,
+            R.drawable.news, R.drawable.traceless_close};
 
     //DialogItem
     private final int ITEM_HISTORY = 0;
     private final int ITEM_BOOKMARK = 1;
     private final int ITEM_ADD_BOOKMARK = 2;
-    private final int ITEM_CREATE_WINDOW = 3;
+    private final int ITEM_NEWS = 3;
+    private final int ITEM_TRACELESS = 4;
+    //    private final int ITEM_CREATE_WINDOW = 5;
 
     //与SearchPageFragment通信
-    private NavSearViewModel viewModel;
+    private NavSearViewModel navSearViewModel;
     private FragmentNavigationListBinding fragmentNavigationListBinding;
+
+    //是否打开无痕浏览
+    private boolean flag = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -115,8 +105,8 @@ public class NavigationListFragment extends Fragment implements View.OnClickList
         //绑定
         fragmentNavigationListBinding = DataBindingUtil.inflate
                 (inflater, R.layout.fragment_navigation_list, container, false);
-        viewModel = ViewModelProviders.of(getActivity()).get(NavSearViewModel.class);
-        fragmentNavigationListBinding.setViewModel(viewModel);
+        navSearViewModel = ViewModelProviders.of(getActivity()).get(NavSearViewModel.class);
+        fragmentNavigationListBinding.setViewModel(navSearViewModel);
         fragmentNavigationListBinding.setLifecycleOwner(getActivity());
 
         view = fragmentNavigationListBinding.getRoot();
@@ -138,15 +128,7 @@ public class NavigationListFragment extends Fragment implements View.OnClickList
         });
 
         menuGrid.setAdapter(getMenuAdapter(menu_name_array, menu_image_array));
-        menuDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
-            public boolean onKey(DialogInterface dialog, int keyCode,
-                                 KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_MENU)// 监听按键
-                    dialog.dismiss();
-                return false;
-            }
-        });
-
+        //菜单中按钮的监听
         menuGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                                     long arg3) {
@@ -154,16 +136,18 @@ public class NavigationListFragment extends Fragment implements View.OnClickList
                     //查看历史记录
                     case ITEM_HISTORY:
                         menuDialog.dismiss();
-                        Intent intent = new Intent(getActivity(), HistoryRecordActivity.class);
-                        startActivity(intent);
+                        Intent toHistory = new Intent(getActivity(), HistoryRecordActivity.class);
+                        startActivity(toHistory);
                         break;
                     //查看书签
                     case ITEM_BOOKMARK:
                         menuDialog.dismiss();
-
+                        Intent toBookmark = new Intent(getActivity(), BookMarkActivity.class);
+                        startActivity(toBookmark);
                         break;
                     //加入书签
                     case ITEM_ADD_BOOKMARK:
+                        menuDialog.dismiss();
                         //获得WebView的title和url
                         String title = webView.getTitle();
                         String url = webView.getUrl();
@@ -172,17 +156,43 @@ public class NavigationListFragment extends Fragment implements View.OnClickList
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe()
                         );
-                        menuDialog.dismiss();
                         break;
                     //创建窗口
-                    case ITEM_CREATE_WINDOW:
+//                    case ITEM_CREATE_WINDOW:
+//                        menuDialog.dismiss();
+//                        //保存当前Fragment数据
+//
+//                        //创建一个新的Fragment
+//
+//                        //新Fragment加载主页
+//
+//                        break;
+                    case ITEM_NEWS:
                         menuDialog.dismiss();
-                        //保存当前Fragment数据
+                        Intent toNews = new Intent(getActivity(), NewsPageActivity.class);
+                        startActivity(toNews);
+                        break;
+                    //无痕浏览
+                    case ITEM_TRACELESS:
+                        menuDialog.dismiss();
+                        View v = arg0.getChildAt(arg2);
+                        TextView tv_traceless = v.findViewById(R.id.item_text);
+                        ImageView iv_traceless = v.findViewById(R.id.item_image);
+                        if (flag) {
+                            Toast.makeText(getActivity(), "关闭了无痕浏览", Toast.LENGTH_SHORT).show();
+                            iv_traceless.setBackground(getResources().getDrawable(R.drawable.traceless_close));
+                            tv_traceless.setTextColor(Color.GRAY);
+                            flag = false;
+                            //具体逻辑
 
-                        //创建一个新的Fragment
+                        } else {
+                            Toast.makeText(getActivity(), "打开了无痕浏览", Toast.LENGTH_SHORT).show();
+                            iv_traceless.setBackground(getResources().getDrawable(R.drawable.traceless_open));
+                            tv_traceless.setTextColor(Color.BLUE);
+                            flag = true;
+                            //具体逻辑
 
-                        //新Fragment加载主页
-
+                        }
                         break;
                 }
             }
@@ -219,10 +229,12 @@ public class NavigationListFragment extends Fragment implements View.OnClickList
         mDisposable = new CompositeDisposable();
     }
 
+    //菜单
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.add("menu");
     }
 
+    //菜单
     private SimpleAdapter getMenuAdapter(String[] menuNameArray,
                                          int[] imageResourceArray) {
         ArrayList<HashMap<String, Object>> data = new ArrayList<HashMap<String, Object>>();
@@ -252,7 +264,7 @@ public class NavigationListFragment extends Fragment implements View.OnClickList
         window.setAttributes(params);
     }
 
-    //点击事件
+    //导航栏点击事件
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -263,19 +275,19 @@ public class NavigationListFragment extends Fragment implements View.OnClickList
                 break;
             //多窗口
             case R.id.windows:
-
+                Toast.makeText(getActivity(), "功能开发中", Toast.LENGTH_SHORT).show();
                 break;
             //后退
             case R.id.goBack:
-                viewModel.getData().setGoBack(1);
+                navSearViewModel.getData().setGoBack(true);
                 break;
             //前进
             case R.id.goForward:
-                viewModel.getData().setGoForward(2);
+                navSearViewModel.getData().setGoForward(true);
                 break;
             //回主页
             case R.id.goHome:
-                viewModel.getData().setGoHome(3);
+                navSearViewModel.getData().setGoHome(true);
                 break;
             default:
                 Toast.makeText(getActivity(), "出错", Toast.LENGTH_SHORT).show();

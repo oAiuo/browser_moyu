@@ -4,34 +4,53 @@ import androidx.lifecycle.LiveData;
 
 public class Data extends LiveData<Data> {
 
-    private int goBack;
-    private int goForward;
-    private int goHome;
+    private boolean goBack;
+    private boolean goForward;
+    private boolean goHome;
+    private int useOther;
+    private boolean noRecord = false;
 
-    public int getGoBack() {
+    public boolean getGoBack() {
         return goBack;
     }
 
-    public void setGoBack(int goBack) {
+    public void setGoBack(boolean goBack) {
         this.goBack = goBack;
         postValue(this);
     }
 
-    public int getGoForward() {
+    public boolean getGoForward() {
         return goForward;
     }
 
-    public void setGoForward(int goForward) {
+    public void setGoForward(boolean goForward) {
         this.goForward = goForward;
         postValue(this);
     }
 
-    public int getGoHome() {
+    public boolean getGoHome() {
         return goHome;
     }
 
-    public void setGoHome(int goHome) {
+    public void setGoHome(boolean goHome) {
         this.goHome = goHome;
         postValue(this);
+    }
+
+    public int getUseOther() {
+        return useOther;
+    }
+
+    public void setUseOther(int useOther) {
+        this.useOther = useOther;
+        postValue(this);
+    }
+
+    public boolean getNoRecord() {
+        return noRecord;
+    }
+
+    public void setNoRecord(boolean noRecord) {
+        this.noRecord = noRecord;
     }
 }
