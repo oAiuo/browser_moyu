@@ -37,6 +37,7 @@ public class FileUtils {
                 SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");//设置以当前时间格式为图片名称
                 String fileName = df.format(new Date()) + ".png";
                 File file = new File(appDir, fileName);
+                Log.i("photo save",appDir.toString());
                 try {
                     FileOutputStream fos = new FileOutputStream(file);
                     bmp.compress(Bitmap.CompressFormat.PNG, 100, fos);
@@ -63,7 +64,7 @@ public class FileUtils {
         File sdDir = null;
         boolean sdCardExist = Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED); //判断sd卡是否存在
         if (sdCardExist) {
-            sdDir = Environment.getExternalStorageDirectory();//获取跟目录
+            sdDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);//获取跟目录
         }
         return sdDir;
     }

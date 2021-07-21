@@ -321,8 +321,8 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         }
 
         @Override
-        public void onPageStarted(WebView view, String url, Bitmap favicon) {
-            super.onPageStarted(view, url, favicon);
+        public void onPageStarted(WebView pgview, String url, Bitmap favicon) {
+            super.onPageStarted(pgview, url, favicon);
 
             // 网页开始加载，显示进度条
             progressBar.setProgress(0);
@@ -336,26 +336,29 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         }
 
         @Override
-        public void onPageFinished(WebView view, String url) {
-            view.getSettings().setJavaScriptEnabled(true);
-            super.onPageFinished(view, url);
+        public void onPageFinished(WebView pgview, String url) {
+            pgview.getSettings().setJavaScriptEnabled(true);
+            super.onPageFinished(pgview, url);
 
-            //插入数据
-            mDisposable.add(historyViewModel.insertHistoryRecord(view.getTitle(), view.getUrl())
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe()
-            );
-
+            String nowTitle = pgview.getTitle();
+            String nowUrl = pgview.getUrl();
             // 网页加载完毕，隐藏进度条
             progressBar.setVisibility(View.INVISIBLE);
 
             // 改变标题
             //mView_.setTitle(webView.getTitle());
             // 显示页面标题
-            textUrl.setText(webView.getTitle());
+            textUrl.setText(nowTitle);
             //getSource(view);
-            addImageClickListener(view);//待网页加载完全后设置图片点击的监听方法
+
+            //插入数据
+            mDisposable.add(historyViewModel.insertHistoryRecord(nowTitle, nowUrl)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe()
+            );
+
+            addImageClickListener(pgview);//待网页加载完全后设置图片点击的监听方法
 
         }
 
