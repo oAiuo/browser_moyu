@@ -342,15 +342,15 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
             view.getSettings().setJavaScriptEnabled(true);
             super.onPageFinished(view, url);
 
-
             if(!noRecord) {
                 //插入数据
-                mDisposable.add(historyViewModel.insertHistoryRecord(view.getTitle(), view.getUrl())
+                mDisposable.add(historyViewModel.insertHistoryRecord(webView.getTitle(), webView.getUrl())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe()
                 );
             }
+
             // 网页加载完毕，隐藏进度条
             progressBar.setVisibility(View.INVISIBLE);
 
@@ -358,6 +358,7 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
             //mView_.setTitle(webView.getTitle());
             // 显示页面标题
             textUrl.setText(webView.getTitle());
+
             //getSource(view);
             addImageClickListener(view);//待网页加载完全后设置图片点击的监听方法
 
