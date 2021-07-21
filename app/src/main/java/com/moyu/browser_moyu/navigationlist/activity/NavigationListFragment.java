@@ -184,6 +184,7 @@ public class NavigationListFragment extends Fragment implements View.OnClickList
                             tv_traceless.setTextColor(Color.GRAY);
                             flag = false;
                             //具体逻辑
+                            navSearViewModel.getData().setNoRecord(false);
 
                         } else {
                             Toast.makeText(getActivity(), "打开了无痕浏览", Toast.LENGTH_SHORT).show();
@@ -191,8 +192,10 @@ public class NavigationListFragment extends Fragment implements View.OnClickList
                             tv_traceless.setTextColor(Color.BLUE);
                             flag = true;
                             //具体逻辑
+                            navSearViewModel.getData().setNoRecord(true);
 
                         }
+
                         break;
                 }
             }

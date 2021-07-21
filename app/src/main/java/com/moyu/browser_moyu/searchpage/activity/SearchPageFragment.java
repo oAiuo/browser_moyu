@@ -71,6 +71,7 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
 
     private CompositeDisposable mDisposable;
     private HistoryViewModel historyViewModel;
+    private boolean noRecord;
 
 
     public SearchPageFragment() {
@@ -129,6 +130,7 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
                     webView.loadUrl(url);
                     data.setUseOther(0);
                 }
+                noRecord = data.getNoRecord();
             }
         });
 
@@ -140,9 +142,7 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         mBinding_ = DataBindingUtil.inflate(inflater, R.layout.fragment_search_page, container, false);
         // 2、获取到视图
         View view = mBinding_.getRoot();
-
         mBinding_.setSearchViewModel(m_search_view_model_);
-
         mView_ = view;
         */
 
@@ -352,11 +352,13 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
             //getSource(view);
 
             //插入数据
-            mDisposable.add(historyViewModel.insertHistoryRecord(nowTitle, nowUrl)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe()
-            );
+            if(!noRecord){
+                mDisposable.add(historyViewModel.insertHistoryRecord(nowTitle, nowUrl)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe()
+                );
+            }
 
             addImageClickListener(pgview);//待网页加载完全后设置图片点击的监听方法
 
@@ -508,17 +510,14 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
             case R.id.goBack:
                 webView.goBack();
                 break;
-
             // 前进
             case R.id.goForward:
                 webView.goForward();
                 break;
-
             // 设置
             case R.id.navSet:
                 Toast.makeText(mContext, "功能开发中", Toast.LENGTH_SHORT).show();
                 break;
-
             // 主页
             case R.id.goHome:
                 webView.loadUrl(getResources().getString(R.string.home_url));

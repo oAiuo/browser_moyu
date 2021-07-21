@@ -8,6 +8,7 @@ public class Data extends LiveData<Data> {
     private boolean goForward;
     private boolean goHome;
     private int useOther;
+    private boolean noRecord = false;
 
     public boolean getGoBack() {
         return goBack;
@@ -43,5 +44,13 @@ public class Data extends LiveData<Data> {
     public void setUseOther(int useOther) {
         this.useOther = useOther;
         postValue(this);
+    }
+
+    public boolean getNoRecord() {
+        return noRecord;
+    }
+
+    public void setNoRecord(boolean noRecord) {
+        this.noRecord = noRecord;
     }
 }
