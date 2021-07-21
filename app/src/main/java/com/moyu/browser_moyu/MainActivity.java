@@ -1,6 +1,8 @@
 package com.moyu.browser_moyu;
 
+
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.KeyEvent;
 
@@ -14,6 +16,7 @@ import static android.view.KeyEvent.KEYCODE_BACK;
 public class MainActivity extends AppCompatActivity {
 
     private NavSearViewModel navSearViewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,8 +54,8 @@ public class MainActivity extends AppCompatActivity {
     //将返回键消费掉，防止直接推出
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == KEYCODE_BACK ){
-            navSearViewModel.getData().setGoBack(1);
+        if(keyCode == KEYCODE_BACK){
+            navSearViewModel.getData().setGoBack(true);
             return true;
         }
         return super.onKeyDown(keyCode, event);
