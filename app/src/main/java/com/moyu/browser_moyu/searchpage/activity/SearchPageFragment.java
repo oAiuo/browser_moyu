@@ -73,7 +73,8 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
 
     private CompositeDisposable mDisposable ;
     private HistoryViewModel historyViewModel;
-
+    //true 开启无痕模式， false 关闭无痕模式
+    private boolean noRecord;
 
 
     public SearchPageFragment() {
@@ -89,8 +90,6 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
         //历史记录数据库
         historyViewModel = new ViewModelProvider(this).get(HistoryViewModel.class);
         mDisposable = new CompositeDisposable();
-
-
 
 
     }
@@ -134,6 +133,7 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
                     webView.loadUrl(url);
                     data.setUseOther(0);
                 }
+                noRecord = data.getNoRecord();
             }
         });
 
@@ -346,13 +346,15 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
             view.getSettings().setJavaScriptEnabled(true);
             super.onPageFinished(view, url);
 
-            //插入数据
-            mDisposable.add(historyViewModel.insertHistoryRecord(view.getTitle(), view.getUrl())
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe()
-            );
 
+            if(!noRecord) {
+                //插入数据
+                mDisposable.add(historyViewModel.insertHistoryRecord(view.getTitle(), view.getUrl())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe()
+                );
+            }
             // 网页加载完毕，隐藏进度条
             progressBar.setVisibility(View.INVISIBLE);
 
