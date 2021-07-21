@@ -71,6 +71,7 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
 
     private CompositeDisposable mDisposable;
     private HistoryViewModel historyViewModel;
+    private boolean noRecord;
 
 
     public SearchPageFragment() {
@@ -129,6 +130,7 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
                     webView.loadUrl(url);
                     data.setUseOther(0);
                 }
+                noRecord = data.getNoRecord();
             }
         });
 
@@ -350,11 +352,13 @@ public class SearchPageFragment extends Fragment implements View.OnClickListener
             //getSource(view);
 
             //插入数据
-            mDisposable.add(historyViewModel.insertHistoryRecord(nowTitle, nowUrl)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe()
-            );
+            if(!noRecord){
+                mDisposable.add(historyViewModel.insertHistoryRecord(nowTitle, nowUrl)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe()
+                );
+            }
 
             addImageClickListener(pgview);//待网页加载完全后设置图片点击的监听方法
 
