@@ -1,14 +1,8 @@
 package com.moyu.browser_moyu.bookmark.activity;
 
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.appcompat.widget.Toolbar;
-
-
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,6 +12,13 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.moyu.browser_moyu.MainActivity;
 import com.moyu.browser_moyu.R;
 import com.moyu.browser_moyu.bookmark.adapter.BookMarkAdapter;
 import com.moyu.browser_moyu.db.MyDataBase;
@@ -26,7 +27,6 @@ import com.moyu.browser_moyu.db.viewmodel.BookmarkRecordViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -78,6 +78,13 @@ public class BookMarkActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
+                BookmarkRecord bookmarkRecord = bookmarkRecordList.get(position);
+                String url = bookmarkRecord.url;
+
+                Intent intent = new Intent(BookMarkActivity.this, MainActivity.class);
+                intent.putExtra("url", url);
+                intent.putExtra("useOther", 4);
+                startActivity(intent);
             }
         });
 
