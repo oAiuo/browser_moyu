@@ -32,7 +32,10 @@ import java.util.List;
 import java.util.Set;
 
 import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 
 public class NewsPageActivity extends AppCompatActivity {
@@ -208,7 +211,10 @@ public class NewsPageActivity extends AppCompatActivity {
      * @param keyWord
      */
     private void startRefreshEventFlow(String keyWord) {
-        Observable.just(keyWord).subscribe(new io.reactivex.Observer<String>() {
+        Observable.just(keyWord)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new io.reactivex.Observer<String>() {
             @Override
             public void onSubscribe(@NotNull Disposable d) {
 
