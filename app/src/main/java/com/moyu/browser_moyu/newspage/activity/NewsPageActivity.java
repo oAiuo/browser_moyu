@@ -4,24 +4,31 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.moyu.browser_moyu.MainActivity;
 import com.moyu.browser_moyu.R;
 import com.moyu.browser_moyu.newspage.entity.Link;
 import com.moyu.browser_moyu.newspage.util.APIutil;
 import com.moyu.browser_moyu.newspage.util.NewsListViewAdapter;
 import com.moyu.browser_moyu.newspage.viewmodel.NewsPageViewModel;
+
+import java.util.List;
+import java.util.zip.Inflater;
 
 
 public class NewsPageActivity extends AppCompatActivity {
@@ -30,14 +37,17 @@ public class NewsPageActivity extends AppCompatActivity {
     private ListView news_list;
     private EditText news_keyWord;
     private Button news_search;
+    private NewsListViewAdapter newsListViewAdapter;
+    private List<Link> urlAndTitle;
 
-    private void initBindView(){
+    private void initBindView() {
         news_list = findViewById(R.id.news_list);
         news_keyWord = findViewById(R.id.news_keyWord);
         news_search = findViewById(R.id.news_search);
     }
 
     private static final String TAG = "NewsPageActivity";
+
     private void setListener() {
         // 设置焦点监听器
         news_keyWord.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -48,7 +58,7 @@ public class NewsPageActivity extends AppCompatActivity {
                 if (hasFocus) {
                     // 获得焦点时，光标定位在关键词末尾
                     editText.setSelection(editText.getText().length());
-                }else {
+                } else {
 
                     // 失去焦点时，同步viewmodel中的 keyWord
                     mNewsPageViewModel.getKeyWord().setValue(editText.getText().toString());
@@ -97,7 +107,7 @@ public class NewsPageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_news_page);
 
         //add followed if test this activity
-       if (android.os.Build.VERSION.SDK_INT > 9) {
+        if (android.os.Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
@@ -108,38 +118,69 @@ public class NewsPageActivity extends AppCompatActivity {
         // view绑定监听器
         setListener();
 
+        View footview = LayoutInflater.from(NewsPageActivity.this).inflate(R.layout.news_list_footer, null);
+        Button news_nextpage = footview.findViewById(R.id.news_nextpage);
+        news_nextpage.setVisibility(View.INVISIBLE);
+        news_list.addFooterView(footview);
+
         mNewsPageViewModel = new NewsPageViewModel();
 
-        APIutil.initTitleUrlList();
-        NewsListViewAdapter newsListViewAdapter = new NewsListViewAdapter(NewsPageActivity.this, R.layout.news_list_item, APIutil.getTitleUrlList());
+
+        news_nextpage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                urlAndTitle = APIutil.getNewsPage(APIutil.getCurrentKeyWord());
+                mNewsPageViewModel.getUrlAndTitle().setValue(urlAndTitle);
+            }
+        });
+
 
         mNewsPageViewModel.getKeyWord().observe(this, new Observer<String>() {
             @Override
             // 关键词发生改变时
             public void onChanged(String newKeyWord) {
-                APIutil.updateTitleUrlList(newKeyWord, 1);
+                news_nextpage.setVisibility(View.VISIBLE);
+                news_nextpage.setText("加载中……");
 
-                // 重新渲染ListView显示内容
-                news_list.setAdapter(newsListViewAdapter);
+                urlAndTitle = APIutil.getNewsPage(newKeyWord);
+
+                mNewsPageViewModel.getUrlAndTitle().setValue(urlAndTitle);
             }
         });
+
+        mNewsPageViewModel.getUrlAndTitle().observe(this, new Observer<List<Link>>() {
+            @Override
+            public void onChanged(List<Link> links) {
+
+                if (newsListViewAdapter!=null) {
+                    newsListViewAdapter.clearList();
+                    newsListViewAdapter.notifyDataSetChanged();
+                }
+
+                newsListViewAdapter = new NewsListViewAdapter(NewsPageActivity.this, R.layout.news_list_item, links);
+                news_list.setAdapter(newsListViewAdapter);
+
+                news_nextpage.setText("下一页");
+            }
+        });
+
 
         // ListView 每个item点击事件
         // TODO 点击访问URL链接
         news_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Link currentLink = APIutil.getTitleUrlList().get(position);
+                Link currentLink = mNewsPageViewModel.getUrlAndTitle().getValue().get(position);
                 String url = currentLink.getUrl();
-                String title = currentLink.getTitle();
 
-                // TODO
-                StringBuilder builder = new StringBuilder();
-                builder.append("title : ").append(title).append("\n");
-                builder.append("url : ").append(url);
-                Toast.makeText(NewsPageActivity.this, builder.toString(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(NewsPageActivity.this, MainActivity.class);
+                intent.putExtra("url", url);
+                intent.putExtra("useOther", 4);
+                startActivity(intent);
             }
         });
 
     }
+
 }

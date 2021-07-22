@@ -15,6 +15,7 @@ import com.moyu.browser_moyu.R;
 import com.moyu.browser_moyu.db.entity.HistoryRecord;
 import com.moyu.browser_moyu.newspage.entity.Link;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class NewsListViewAdapter extends BaseAdapter {
@@ -79,5 +80,9 @@ public class NewsListViewAdapter extends BaseAdapter {
         viewHolder.title.setText(item.getTitle());
         viewHolder.url.setText(item.getUrl());
         return view;
+    }
+
+    public void clearList() {
+        itemList.removeAll(itemList);
     }
 }
